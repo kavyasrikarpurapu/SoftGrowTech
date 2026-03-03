@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do List App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(225, 0, 255);
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input {
+            width: 70%;
+            padding: 8px;
+        }
+
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            margin-top: 8px;
+            background-color: #e6e6e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        li.completed {
+            text-decoration: line-through;
+            background-color: #b3ffb3;
+        }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>To-Do List</h2>
+
+    <input type="text" id="taskInput" placeholder="Enter a task">
+    <button onclick="addTask()">Add</button>
+
+    <ul id="taskList"></ul>
+</div>
+
+<script>
+    // Load tasks from localStorage
+    document.addEventListener("DOMContentLoaded", loadTasks);
+
+    function addTask() {
+        let input = document.getElementById("taskInput");
+        let taskText = input.value.trim();
+
+        if (taskText === "") {
+            alert("Please enter a task");
+            return;
+        }
+
+        createTaskElement(taskText, false);
+        saveTask(taskText, false);
+
+        input.value = "";
+    }
+
+    function createTaskElement(taskText, completed) {
+        let li = document.createElement("li");
+        li.textContent = taskText;
+
+        if (completed) {
+            li.classList.add("completed");
+        }
+
+        // Mark as completed
+        li.addEventListener("click", function () {
+            li.classList.toggle("completed");
+            updateStorage();
+        });
+
+        // Delete button
+        let deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "X";
+        deleteBtn.className = "delete-btn";
+
+        deleteBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            li.remove();
+            updateStorage();
+        });
+
+        li.appendChild(deleteBtn);
+        document.getElementById("taskList").appendChild(li);
+    }
+
+    function saveTask(taskText, completed) {
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        tasks.push({ text: taskText, completed: completed });
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function loadTasks() {
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        tasks.forEach(task => {
+            createTaskElement(task.text, task.completed);
+        });
+    }
+
+    function updateStorage() {
+        let tasks = [];
+        document.querySelectorAll("#taskList li").forEach(li => {
+            tasks.push({
+                text: li.firstChild.textContent,
+                completed: li.classList.contains("completed")
+            });
+        });
+
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+</script>
+
+</body>
+</html>
